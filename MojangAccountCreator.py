@@ -19,6 +19,9 @@ from random import randint # For Date Generation
 import time
 from selenium.webdriver.common.keys import Keys
 from datetime import date # Current Date
+from fake_useragent import UserAgent
+from dotenv import load_dotenv
+import os
 
 # OS.GETENV in progress
 
@@ -27,15 +30,14 @@ PATH_TO_DRIVERS = "/Users/ayushnayak/Downloads/" # Definitely one for the .env
 MOJANG_URL = "https://my.minecraft.net/en-us/store/minecraft/#register"
 TEMP_MAIL_URL = "https://temp-mail.org/en/"
 CREDITS = "Created by Shad0w7, Moral Support by Kiriyn"
-
+PROXY = "199.195.248.24:8080"
 
 # -- Drivers --      
 
 Verbose = True
 if Verbose:
     print('Starting in Verbose Mode:')
-pathToChrome = PATH_TO_DRIVERS
-currentDriver = 'chromium' # chromium, gecko (mozilla)
+currentDriver = 'chromedriverASD' # chromium, chromiumASD = AntiSeleniumDetection (modified executable)
 
 # -- XPaths -- 
 
@@ -66,22 +68,13 @@ emailCodeXPath = '/html/body/main/div[1]/div/div[3]/div[2]/div/div[1]/div/div[2]
 
 # -- Generate Values to Send --
 
-# Email
+# Date
 
-email = 'NOTSETYET@NO.COM' # Retrieve this from a Temp Mail
+dayValue = str(random.randint(1, 27)) # Day
 
+monthValue = str(random.randint(1, 12)) # Month
 
-# Day
-
-dayValue = str(random.randint(1, 27))
-
-# Month
-
-monthValue = str(random.randint(1, 12))
-
-# Year
-
-yearValue = str(random.randint(1975, 2001))
+yearValue = str(random.randint(1975, 2001)) # Year
 
 # Password
 
@@ -89,26 +82,49 @@ from random import *
 characters = string.ascii_letters + string.digits
 passcode =  "".join(choice(characters) for x in range(randint(8, 16)))
 
-
-
-print('MojangAccountSpammer Version: {0} \n{1}'.format(VERSION, CREDITS))
-print("----------------")
 if Verbose:
-    print('Current Path: {0} \nCurrent Browser: {1}'.format(pathToChrome, currentDriver))
+    print('MojangAccountSpammer Version: {0} \n{1}'.format(VERSION, CREDITS))
+    print("----------------")
+if Verbose:
+    print('Current Path: {0} \nCurrent Browser: {1}'.format(str(PATH_TO_DRIVERS), currentDriver))
     print('Session Passcode: {0}'.format(passcode))
     print('Session Date: {0}/{1}/{2}'.format(monthValue, dayValue, yearValue))
 
 
 
-# Setting up Chrome
-if currentDriver == 'chromium': # Google Chrome [The Chromium Project]
-    driver = webdriver.Chrome(pathToChrome + 'chromedriver')
+# -- Setting up the WebDriver to Look like a Real Request--
 
-if currentDriver == 'gecko': # Mozilla Firefox [Mozilla Gecko]
-    driver = webdriver.Firefox(PATH_TO_DRIVERS + 'firefoxdriver')
+# NOTE: Google's reCaptcha v2 Invisible, detects that Selenium is being used, and serves a reCaptcha without an audio option, which we need
+
+# Proxy
+
+# Proxies are not a good idea, as they slow down the internet
+
+
+# Options
+
+options = webdriver.ChromeOptions()
+
+#options.add_argument('--proxy-server=%s' % PROXY)
+options.add_argument('start-maximized')
+options.add_experimental_option('excludeSwitches', ['enable-automation'])
+options.add_experimental_option('useAutomationExtension', False)
+
+# Path
+
+path = str(PATH_TO_DRIVERS) + currentDriver
+driver = webdriver.Chrome(options=options, executable_path=path)
+
+# Scripts
+
+driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'})
+
+if Verbose:
+    
+    print('Session User Agent: {}'.format(driver.execute_script("return navigator.userAgent;")))
 
 # Open the second window
-
 
 driver.get("https://www.google.com")
 parentGUID = driver.current_window_handle
@@ -185,7 +201,13 @@ driver.find_element_by_xpath(createAccountXPath).click()
 
 # Now everything has been sent and reCAPCHA should show up
 
-input('Enter once ReCAPTCHA Completed: ')
+while True:
+    time.sleep(1)
+    if (str(driver.current_url) == 'https://my.minecraft.net/en-us/store/minecraft/#register'):
+        continue
+    break
+
+
 if Verbose:
     print('Switching to temp-mail')
 driver.switch_to.window(childGUID)
@@ -254,6 +276,7 @@ postString = '{0}_{1}_{2}_{3}_{4}'.format(emailValue, passcode, dateString, date
 if Verbose:
     print('Appending...')
 f = open("list.txt", 'a')
+f.write('\n')
 f.write(postString)
 f.close()
 
