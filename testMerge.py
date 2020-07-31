@@ -23,9 +23,10 @@ from selenium.webdriver.common.keys import Keys
 # OS.GETENV in progress
 
 VERSION = "InDev0.0"
-PATH_TO_DRIVERS = "/Users/ayushnayak/Downloads/"
+PATH_TO_DRIVERS = "/Users/ayushnayak/Downloads/" # Definitely one for the .env
 MOJANG_URL = "https://my.minecraft.net/en-us/store/minecraft/#register"
 TEMP_MAIL_URL = "https://temp-mail.org/en/"
+CREDITS = "Created by Shad0w7, Moral Support by Kiriyn"
 
 
 # -- Drivers --      
@@ -34,42 +35,40 @@ Verbose = True
 if Verbose:
     print('Starting in Verbose Mode:')
 pathToChrome = PATH_TO_DRIVERS
-currentDriver = 'chromium' # chrome, gecko (mozilla)
+currentDriver = 'chromium' # chromium, gecko (mozilla)
 
 # -- XPaths -- 
 
 # Note: XPath Names MAY CHANGE WITHOUT WARNING!!!!!
 
-# Mojang
+# Mojang Filler Website
 
 emailXPath = '//*[@name="email"]'
-
 emailRepeatXPath = '//*[@name="repeatEmail"]'
-
 passwordXPath = '//*[@name="password"]'
-
 createAccountXPath = '//*[@id="orderflow"]/div[2]/div/div/form/div[6]/button'
-
 dayXPath = '//*[@name="day"]'
-
 monthXPath = '//*[@name="month"]'
-
 yearXPath = '//*[@name="year"]'
 
+# Mojang Verify Website
+
+verificationCodeXPath = '//*[@name="token"]'
+verifyButtonXPath = '//*[@id="orderflow"]/div[2]/div/div/form/div/div[2]/button'
 
 # Temp-Mail
 
 emailDisplayXPath = '//*[@id="mail"]'
-
 refrestButtonXPath = '//*[@id="click-to-refresh"]'
+HREFEmailXPath = '/html/body/main/div[1]/div/div[3]/div[2]/div/div[1]/div/div[4]/ul/li[2]/div[1]/a'
+emailCodeXPath = '/html/body/main/div[1]/div/div[3]/div[2]/div/div[1]/div/div[2]/div[3]/div/p[4]'
 
-firstEmailXPath = '/html/body/main/div[1]/div/div[3]/div[2]/div/div[1]/div/div[4]/ul/li[2]/div[1]/a'
 
 # -- Generate Values to Send --
 
 # Email
 
-email = 'NOTSETYET@NO.COM' # Retrieve this from a Temp Mail Microservice (Static for now)
+email = 'NOTSETYET@NO.COM' # Retrieve this from a Temp Mail
 
 
 # Day
@@ -92,7 +91,7 @@ passcode =  "".join(choice(characters) for x in range(randint(8, 16)))
 
 
 
-print('MojangAccountSpammer Version: {} \nCreated by Shad0w7 and Kiriyn'.format(VERSION))
+print('MojangAccountSpammer Version: {0} \n{1}'.format(VERSION, CREDITS))
 print("----------------")
 if Verbose:
     print('Current Path: {0} \nCurrent Browser: {1}'.format(pathToChrome, currentDriver))
@@ -102,13 +101,13 @@ if Verbose:
 
 
 # Setting up Chrome
-if currentDriver == 'chromium':
+if currentDriver == 'chromium': # Google Chrome [The Chromium Project]
     driver = webdriver.Chrome(pathToChrome + 'chromedriver')
 
-#open the second window
+if currentDriver == 'gecko': # Mozilla Firefox [Mozilla Gecko]
+    driver = webdriver.Firefox(PATH_TO_DRIVERS + 'firefoxdriver')
 
-
-
+# Open the second window
 
 
 driver.get("https://www.google.com")
@@ -121,12 +120,16 @@ actions.key_down(Keys.COMMAND).click(about).key_up(Keys.COMMAND).perform()
 
 driver.switch_to.window(driver.window_handles[-1])
 
+# Open Temp-Mail Website
 
 driver.get(TEMP_MAIL_URL)
 
+
+# -- Gather Email Address --
+
 childGUID = driver.current_window_handle
 
-while(True):
+while(True): # Make sure its not tempmails stupid "Loading..." thing
     time.sleep(0.5)
     test = driver.find_element_by_xpath(emailDisplayXPath)
     if test.get_attribute('value') == 'Loading':
@@ -141,7 +144,14 @@ while(True):
 
 x = driver.find_element_by_xpath(emailDisplayXPath)
 
-print('Session Email: {}'.format(x.get_attribute('value')))
+if Verbose: 
+    print('Email Gathered!')
+    print('Session Email: {}'.format(x.get_attribute('value')))
+    print('Switching to minecraft.net')
+
+
+# -- Inputting Data to minecraft.net --
+
 
 emailValue = '{}'.format(x.get_attribute('value'))
 
@@ -167,26 +177,70 @@ daySelector.select_by_value(dayValue)
 monthSelector.select_by_value(monthValue)
 yearSelector.select_by_value(yearValue)
 
+# -- Solve Captcha --
+
+# Note: in the future, there should be an automated captcha solver
+
 driver.find_element_by_xpath(createAccountXPath).click()
 
 # Now everything has been sent and reCAPCHA should show up
 
 input('Enter once ReCAPTCHA Completed: ')
-
+if Verbose:
+    print('Switching to temp-mail')
 driver.switch_to.window(childGUID)
 
 # On TempMail Website
 
+
+# -- Gather Code from Email --
+
 driver.find_element_by_xpath(refrestButtonXPath).click()
 
-input('Enter Once New Email: ')
-try:
-    mojangEmailLink = driver.find_element_by_xpath(firstEmailXPath).get_attribute('href')
-    print(mojangEmailLink)
-except:
-    print('FAILED')
-    input()
-    driver.quit()
+if Verbose:
+    print('Waiting for email...')
+while True:
+    time.sleep(1)
+    try:
+        mojangEmailLink = driver.find_element_by_xpath(HREFEmailXPath).get_attribute('href')
+        break
+    except:
+        continue
+if Verbose:
+    print('Link Found! {}'.format(mojangEmailLink))
 
-input('Enter to Quit: ')
+driver.get(mojangEmailLink)
+
+while True:
+    time.sleep(1)
+    try:
+        element = driver.find_element_by_xpath(emailCodeXPath)
+        break
+    except:
+        input('Enter to Retry!')
+        continue
+    
+
+code = '{}'.format(element.get_attribute('innerHTML'))
+
+x = code.replace(' ', '')
+z = x.strip()
+if Verbose:
+    print('Code: {}'.format(z))
+
+time.sleep(0.1)
+if Verbose:
+    print('Switching to minecraft.net')
+
+# Back to minecraft.net
+driver.switch_to.window(parentGUID)
+
+# -- Enter Code into minecraft.net --
+
+driver.find_element_by_xpath(verificationCodeXPath).send_keys(z)
+driver.find_element_by_xpath(verifyButtonXPath).click()
+
+# Ready to Quit !
+
+input('Program Finished! \nPress Enter to Quit. . . ')
 driver.quit()
