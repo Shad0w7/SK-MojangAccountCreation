@@ -1,4 +1,4 @@
-# testMerge.py
+# MojangAccountCreator.py
 
 # Copyright (C) Ayush Nayak, Daniel Deng - All Rights Reserved
 # Unauthorized copying of this file, via any medium is strictly prohibited
@@ -8,7 +8,6 @@
 
 # -- Dependencies -- 
 
-from generateEmail import * # Generate Email
 import selenium # Selenium
 from selenium import webdriver # Chrome Webdrivers
 from selenium.webdriver.support.ui import Select # Select Framework
@@ -16,9 +15,10 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 import string
 import random
-from random import randint # For Date
+from random import randint # For Date Generation
 import time
 from selenium.webdriver.common.keys import Keys
+from datetime import date # Current Date
 
 # OS.GETENV in progress
 
@@ -240,7 +240,27 @@ driver.switch_to.window(parentGUID)
 driver.find_element_by_xpath(verificationCodeXPath).send_keys(z)
 driver.find_element_by_xpath(verifyButtonXPath).click()
 
+# Post Data
+
+'''
+Format:
+<EMAIL>_<PASSWORD>_<DATE>_<CREATIONDATE>_<MC>
+ex:
+boyoh96857@ascaz.net_DUmOfbUG4hmJcLt_2/23/1978_7/30/2020_FALSE
+
+'''
+dateString = '{0}/{1}/{2}'.format(monthValue, dayValue, yearValue)
+postString = '{0}_{1}_{2}_{3}_{4}'.format(emailValue, passcode, dateString, date.today(), 'FALSE')
+if Verbose:
+    print('Appending...')
+f = open("list.txt", 'a')
+f.write(postString)
+f.close()
+
+if Verbose:
+    print('Appended Text!')
 # Ready to Quit !
 
-input('Program Finished! \nPress Enter to Quit. . . ')
+# input('Program Finished! \nPress Enter to Quit. . . ') 
+print('Quitting. . .')
 driver.quit()
