@@ -10,6 +10,7 @@ Kiriyn and Shad0w, Play on words of Chearful Ninja, this is a Selenium based web
 
 This is a Chearful Ninja esque blocking sniper. It is meant to spam hundreds of Mojang Accounts at the same time, trying to redeem gift codes for the account name, right when it drops on nameMC. It requires NO prior account, and NO token. The way it works, is first you need hundreds of Mojang accounts. This is done with the automated script which creates these accounts. The second part, is actually spamming the accounts, this is done with a spammer script which is much more time intensive.
 
+[xinabox Video](https://www.youtube.com/watch?v=dojcW7xYznM)
 
 ## Mojang Account Creator
 
