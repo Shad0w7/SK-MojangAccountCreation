@@ -45,9 +45,13 @@ The Mojang Spammer will log into different tabs, from list.txt, and open many ta
 
 ### Shad0w7#0320 - Lead Programmer
 
+![Shad0w Profile](https://crafatar.com/avatars/a1ad5f17157f44f595b1cd7cddac86a7?size=200&overlay)
+
 Guy that learns 2 million different languages for no reason
 
 ### Kiriiiii#3268 - Head of Minecraft
 
-![Kiriyn Profile](https://hypixel.net/data/avatars/l/1746/1746212.jpg?1503536288)
+![Kiriyn Profile](https://crafatar.com/avatars/db14003f1f684fef8ca6c10c6efb5a25?size=200&overlay)
+
+
 Idea Man and the guy with contacts
