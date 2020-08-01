@@ -49,4 +49,5 @@ Guy that learns 2 million different languages for no reason
 
 ### Kiriiiii#3268 - Head of Minecraft
 
+![Kiriyn Profile](https://hypixel.net/data/avatars/l/1746/1746212.jpg?1503536288)
 Idea Man and the guy with contacts
